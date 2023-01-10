@@ -31,6 +31,8 @@ const registerUser = (req, res) => {
 
 const loginUser = (req, res) => {
     let { username, password } = req.body
+    let verifyPassword = bcrypt.Hash(password)
+    password = bcrypt.Compare(password, verifyPassword)
 
     const token = jwt.sign({ username }, jwtKey, {
         algorithm: "HS256",
@@ -41,12 +43,16 @@ const loginUser = (req, res) => {
         if (error) throw error;
         res.status(201)
         .send({
-            "message" : "User Registered Successfully",
+            "message" : "User Logged Successfully",
             "token" : token
         })
         .cookie("token", token, { maxAge: jwtExpirySeconds * 1000 })
         .end()
     })
+
+    if (!password) {
+        return res.status(404).json({message : "Wrong password"})
+    }
 
 }
 
